@@ -1,7 +1,7 @@
 export type RootStackParamList = {
-  Home: undefined;
+  Home: {appliedJobId?: string};
   Bookmarks: undefined;
-  ApplicationForm: undefined;
+  ApplicationForm: { job: JobsProcessed };
 };
 
 export type Job = {
@@ -27,6 +27,7 @@ export type Job = {
 export interface JobsProcessed extends Job {
   id: string;
   isSaved: boolean;
+  isApplied: boolean;
 };
 
 export interface JobsApiResponse {
@@ -40,4 +41,24 @@ export interface JobsApiResponse {
 
 export interface JobsApiResponseWithIds extends Omit<JobsApiResponse, "jobs"> {
     jobs: JobsProcessed[];
+}
+
+export interface FormValues {
+  name: string;
+  email: string;
+  contact_number: string;
+  wswhy: string;
+}
+
+export interface BottomNavProps {
+  activeRoute: keyof RootStackParamList;
+}
+
+export interface JobCardProps {
+  job: JobsProcessed;
+  onBookmarkToggle?: (isSaved: boolean) => void;
+  onApplicationToggle?: (isApplied: boolean) => void;
+  isSelectable?: boolean;
+  isSelected?: boolean;
+  onSelect?: (id: string) => void;
 }

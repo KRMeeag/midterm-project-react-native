@@ -21,17 +21,22 @@ interface JobContextType {
   loading: boolean;
   onBookmarksPress: (id: string) => void;
   bookmarkedEntries: JobsProcessed[];
+  onApplication: (id: string) => void;
+  onRemoveBookmarks: (ids: string[]) => void;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
 }
 
 const JobContext = createContext<JobContextType | undefined>(undefined);
 
 export const JobProvider = ({ children }: { children: ReactNode }) => {
   const [data, setData] = useState<JobsProcessed[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [bookmark, setBookmark] = useState<string[]>([]);
+  const [applied, setApplied] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const savedIds = new Set(bookmark)
-  const bookmarkedEntries = data.filter(obj => savedIds.has(obj.id));
-
+  const savedIds = new Set(bookmark);
+  const bookmarkedEntries = data.filter((obj) => savedIds.has(obj.id));
 
   const fetchData = async (): Promise<void> => {
     try {
@@ -43,6 +48,7 @@ export const JobProvider = ({ children }: { children: ReactNode }) => {
           ...job,
           id: uuid.v4().toString(),
           isSaved: false,
+          isApplied: false,
         }),
       );
 
@@ -58,16 +64,6 @@ export const JobProvider = ({ children }: { children: ReactNode }) => {
     fetchData();
   }, []);
 
-  //   To remove
-  useEffect(() => {
-    console.log(data);
-  }, [data, loading]);
-
-  // To Remove
-  useEffect(() => {
-    console.log(bookmarkedEntries);
-  }, [bookmark]);
-
   const onBookmarksPress = (id: string) => {
     setBookmark((prevBookmarks) =>
       prevBookmarks.includes(id)
@@ -75,14 +71,50 @@ export const JobProvider = ({ children }: { children: ReactNode }) => {
         : [...prevBookmarks, id],
     );
 
-    setData(prev => prev.map(obj => 
-        obj.id === id ? {...obj, isSaved: !obj.isSaved} : obj
-    ));
+    setData((prev) =>
+      prev.map((obj) =>
+        obj.id === id ? { ...obj, isSaved: !obj.isSaved } : obj,
+      ),
+    );
+  };
 
+  const onApplication = (id: string) => {
+    setApplied((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
+    );
+
+    setData((prev) =>
+      prev.map((obj) =>
+        obj.id === id ? { ...obj, isApplied: !obj.isApplied } : obj,
+      ),
+    );
+  };
+
+  const onRemoveBookmarks = (ids: string[]) => {
+    setBookmark((prevBookmarks) =>
+      prevBookmarks.filter((id) => !ids.includes(id)),
+    );
+
+    setData((prevData) =>
+      prevData.map((obj) =>
+        ids.includes(obj.id) ? { ...obj, isSaved: false } : obj,
+      ),
+    );
   };
 
   return (
-    <JobContext.Provider value={{ data, loading, onBookmarksPress, bookmarkedEntries }}>
+    <JobContext.Provider
+      value={{
+        data,
+        loading,
+        onBookmarksPress,
+        bookmarkedEntries,
+        onApplication,
+        onRemoveBookmarks,
+        searchQuery,
+        setSearchQuery
+      }}
+    >
       {children}
     </JobContext.Provider>
   );
