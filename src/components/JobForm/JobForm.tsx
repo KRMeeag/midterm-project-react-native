@@ -214,7 +214,7 @@ const JobForm: React.FC = () => {
                   Phone Number
                 </Text>
                 <TextInput
-                  placeholder="e.g. 1234567890"
+                  placeholder="e.g. +631234567890"
                   placeholderTextColor="#888"
                   keyboardType="phone-pad"
                   onChangeText={handleChange("contact_number")}

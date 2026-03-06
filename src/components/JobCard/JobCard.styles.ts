@@ -5,7 +5,7 @@ export const jobCardStyles = StyleSheet.create({
   headerRow: {
     flexDirection: "row",
     alignItems: "flex-start",
-    marginBottom: 15,
+    marginBottom: 12, // Reduced slightly
   },
   checkboxContainer: { justifyContent: "center", marginRight: 15, height: 50 },
   logoTitleContainer: { flexDirection: "row", alignItems: "center", flex: 1 },
@@ -22,6 +22,21 @@ export const jobCardStyles = StyleSheet.create({
   logoText: { fontSize: 24, fontWeight: "bold", color: "#fff" },
   title: { fontSize: 18, fontWeight: "bold", marginBottom: 4 },
   company: { fontSize: 14 },
+  
+  // New Info Section Styles
+  infoSection: {
+    marginBottom: 12,
+    gap: 6,
+  },
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  infoText: {
+    fontSize: 13,
+  },
+  
   tagsContainer: { flexDirection: "row", flexWrap: "wrap", marginBottom: 12 },
   tag: {
     paddingHorizontal: 12,
@@ -51,45 +66,4 @@ export const jobCardStyles = StyleSheet.create({
   saveButton: { borderWidth: 1 },
   applyButton: { borderWidth: 0 },
   actionButtonText: { fontWeight: "bold", fontSize: 14 },
-
-  // Modal Styles
-  modalOverlay: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    padding: 20,
-  },
-  modalContent: {
-    width: "100%",
-    borderRadius: 12,
-    padding: 24,
-    borderWidth: 1,
-    elevation: 5,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 12,
-    textAlign: "center",
-  },
-  modalText: {
-    fontSize: 16,
-    marginBottom: 24,
-    textAlign: "center",
-    lineHeight: 22,
-  },
-  modalButtonRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 12,
-  },
-  modalButton: {
-    flex: 1,
-    paddingVertical: 14,
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  modalButtonText: { fontSize: 16, fontWeight: "bold" },
 });

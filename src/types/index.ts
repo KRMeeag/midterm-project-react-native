@@ -53,12 +53,3 @@ export interface FormValues {
 export interface BottomNavProps {
   activeRoute: keyof RootStackParamList;
 }
-
-export interface JobCardProps {
-  job: JobsProcessed;
-  onBookmarkToggle?: (isSaved: boolean) => void;
-  onApplicationToggle?: (isApplied: boolean) => void;
-  isSelectable?: boolean;
-  isSelected?: boolean;
-  onSelect?: (id: string) => void;
-}

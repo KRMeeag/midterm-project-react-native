@@ -14,6 +14,7 @@ export const BottomNav = ({ activeRoute }: BottomNavProps) => {
   const navigation = useNavigation<NavigationProp>();
   const styles = bottomNavStyles;
 
+  // Function to navigate to another tab
   const navigateTo = (location: string) => {
     navigation.dispatch(
       CommonActions.reset({

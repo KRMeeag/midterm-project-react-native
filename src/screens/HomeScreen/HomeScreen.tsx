@@ -150,7 +150,7 @@ const HomeScreen = () => {
                 onBookmarkToggle={(isSaved) =>
                   showToast(
                     isSaved ? "Job Saved" : "Job Unsaved",
-                    isSaved ? "success" : "error",
+                    isSaved ? "success" : "success",
                   )
                 }
                 onApplicationToggle={(isApplied) => {

@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
   FlatList,
-  StyleSheet,
   StatusBar,
   TouchableOpacity,
   Modal,
+  Animated,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useJob } from "../../contexts/JobContext";
@@ -28,14 +28,63 @@ const BookmarkScreen = () => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isModalVisible, setIsModalVisible] = useState(false);
 
+  // Toast Configuration States
+  const [toastConfig, setToastConfig] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(50)).current;
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Toast Logic
+  const showToast = (
+    message: string,
+    type: "success" | "error" = "success",
+  ) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    setToastConfig({ message, type });
+
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    timeoutRef.current = setTimeout(() => {
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 50,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        setToastConfig(null);
+      });
+    }, 3000);
+  };
+
   // Remove jobs bulk related functions
-  // Show checkboxes
   const toggleSelectionMode = () => {
     setIsSelectionMode(!isSelectionMode);
     setSelectedIds(new Set()); 
   };
 
-  // handles selection of jobs via the checkboxes
   const handleSelectJob = (id: string) => {
     const newSelected = new Set(selectedIds);
     if (newSelected.has(id)) {
@@ -46,12 +95,12 @@ const BookmarkScreen = () => {
     setSelectedIds(newSelected);
   };
 
-  // handles delete confirmation
   const handleConfirmDelete = () => {
     onRemoveBookmarks(Array.from(selectedIds));
     setIsModalVisible(false);
     setIsSelectionMode(false);
     setSelectedIds(new Set());
+    showToast("Jobs Unsaved", "success"); 
   };
 
   // Empty State Component
@@ -137,16 +186,45 @@ const BookmarkScreen = () => {
                 isSelectable={isSelectionMode}
                 isSelected={selectedIds.has(item.id)}
                 onSelect={handleSelectJob}
+                onBookmarkToggle={(isSaved) =>
+                  showToast(
+                    isSaved ? "Job Saved" : "Job Unsaved",
+                    isSaved ? "success" : "success",
+                  )
+                }
+                onApplicationToggle={(isApplied) => {
+                  if (!isApplied) {
+                    showToast("Application Revoked", "error");
+                  }
+                }}
               />
             )}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.flatListContent}
-            ListEmptyComponent={renderEmptyState} // Integration
+            ListEmptyComponent={renderEmptyState} 
           />
         </View>
 
         <BottomNav activeRoute="Bookmarks" />
       </View>
+
+      {/* Dynamic Toast Chip */}
+      {toastConfig && (
+        <Animated.View
+          style={[
+            styles.chipContainer,
+            {
+              backgroundColor:
+                toastConfig.type === "error" ? "#e74c3c" : colors.primary,
+              bottom: insets.bottom + 80,
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
+        >
+          <Text style={styles.chipText}>{toastConfig.message}</Text>
+        </Animated.View>
+      )}
 
       <View style={{ height: insets.bottom, backgroundColor: colors.card }} />
 
