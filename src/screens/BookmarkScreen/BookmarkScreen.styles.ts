@@ -30,7 +30,27 @@ export const bookmarkScreenStyles = StyleSheet.create({
   actionText: { fontSize: 16 },
   selectedCount: { fontSize: 16, fontWeight: "600" },
   listContainer: { flex: 1, paddingHorizontal: 20, paddingTop: 10 },
-  flatListContent: { paddingBottom: 20, flexGrow: 1 }, // Added flexGrow: 1
+  flatListContent: { paddingBottom: 20, flexGrow: 1 },
+
+  // Toast Styles (Added)
+  chipContainer: {
+    position: "absolute",
+    alignSelf: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 25,
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    zIndex: 1000,
+  },
+  chipText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 14,
+  },
 
   // Empty State Styles
   emptyContainer: {

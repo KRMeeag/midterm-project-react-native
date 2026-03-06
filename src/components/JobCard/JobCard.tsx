@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, Image, Modal, Pressable } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
+import { View, Text, Image, Pressable } from "react-native";
+import { MaterialIcons, Feather } from "@expo/vector-icons"; // Added Feather for subtle info icons
 import { useTheme } from "../../contexts/ThemeContext";
 import { JobsProcessed } from "../../types";
 import { useJob } from "../../contexts/JobContext";
@@ -8,6 +8,7 @@ import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../types";
 import { jobCardStyles } from "./JobCard.styles";
+import { ConfirmationModal } from "../ConfirmationModal/ConfirmationModal";
 
 type NavigationProp = StackNavigationProp<RootStackParamList>;
 
@@ -55,27 +56,35 @@ export const JobCard = ({
     return "Undisclosed Salary";
   };
 
+  // Format Dates
+  const formatPubDate = () => {
+    if (!job.pubDate) return "Unknown date";
+
+    // Multiply by 1000 to convert seconds to milliseconds
+    const date = new Date(job.pubDate * 1000);
+
+    return date.toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
   // Modal related functions
   // Handles saving via modal
   const handleSavePress = () => {
     if (job.isSaved) {
-      // If currently saved, show confirmation modal before unsaving
       setIsUnsaveModalVisible(true);
     } else {
-      // If not saved, proceed with saving immediately
       onBookmarksPress(job.id);
-      if (onBookmarkToggle) {
-        onBookmarkToggle(true);
-      }
+      if (onBookmarkToggle) onBookmarkToggle(true);
     }
   };
 
   // Unsaves job
   const handleConfirmUnsave = () => {
     onBookmarksPress(job.id);
-    if (onBookmarkToggle) {
-      onBookmarkToggle(false);
-    }
+    if (onBookmarkToggle) onBookmarkToggle(false);
     setIsUnsaveModalVisible(false);
   };
 
@@ -83,9 +92,7 @@ export const JobCard = ({
   const handleCancelApplicationConfirm = () => {
     onApplication(job.id);
     setIsCancelModalVisible(false);
-    if (onApplicationToggle) {
-      onApplicationToggle(false);
-    }
+    if (onApplicationToggle) onApplicationToggle(false);
   };
 
   const CardWrapper = isSelectable ? Pressable : View;
@@ -104,6 +111,7 @@ export const JobCard = ({
           },
         ]}
       >
+        {/* Header Row */}
         <View style={styles.headerRow}>
           {isSelectable && (
             <View style={styles.checkboxContainer}>
@@ -127,14 +135,12 @@ export const JobCard = ({
               <Text
                 style={[styles.title, { color: colors.text }]}
                 numberOfLines={2}
-                ellipsizeMode="tail"
               >
                 {job.title}
               </Text>
               <Text
                 style={[styles.company, { color: colors.subtext }]}
                 numberOfLines={1}
-                ellipsizeMode="tail"
               >
                 {job.companyName}
               </Text>
@@ -142,6 +148,30 @@ export const JobCard = ({
           </View>
         </View>
 
+        {/* New Summarized Info Section */}
+        <View style={styles.infoSection}>
+          {job.locations && job.locations.length > 0 && (
+            <View style={styles.infoRow}>
+              <Feather name="map-pin" size={14} color={colors.subtext} />
+              <Text
+                style={[styles.infoText, { color: colors.subtext }]}
+                numberOfLines={1}
+              >
+                {job.locations.join(", ")}
+              </Text>
+            </View>
+          )}
+          {job.pubDate && (
+            <View style={styles.infoRow}>
+              <Feather name="clock" size={14} color={colors.subtext} />
+              <Text style={[styles.infoText, { color: colors.subtext }]}>
+                Posted {formatPubDate()}
+              </Text>
+            </View>
+          )}
+        </View>
+
+        {/* Tags */}
         <View style={styles.tagsContainer}>
           {displayTags.map((tag, index) => (
             <View
@@ -155,10 +185,12 @@ export const JobCard = ({
           ))}
         </View>
 
+        {/* Salary */}
         <Text style={[styles.price, { color: colors.text }]}>
           {formatSalary()}
         </Text>
 
+        {/* Actions */}
         {!isSelectable && (
           <View style={styles.footerRow}>
             <Pressable
@@ -224,116 +256,24 @@ export const JobCard = ({
         )}
       </CardWrapper>
 
-      {/* Unsave Confirmation Modal */}
-      <Modal
-        transparent={true}
+      {/* Refactored Modals */}
+      <ConfirmationModal
         visible={isUnsaveModalVisible}
-        animationType="fade"
-        onRequestClose={() => setIsUnsaveModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View
-            style={[
-              styles.modalContent,
-              { backgroundColor: colors.card, borderColor: colors.border },
-            ]}
-          >
-            <Text style={[styles.modalTitle, { color: colors.text }]}>
-              Unsave Job
-            </Text>
-            <Text style={[styles.modalText, { color: colors.text }]}>
-              Are you sure you want to remove this job from your saved list?
-            </Text>
+        onClose={() => setIsUnsaveModalVisible(false)}
+        onConfirm={handleConfirmUnsave}
+        title="Unsave Job"
+        message="Are you sure you want to remove this job from your saved list?"
+        confirmText="Unsave"
+        cancelText="Cancel"
+      />
 
-            <View style={styles.modalButtonRow}>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.modalButton,
-                  {
-                    backgroundColor: colors.background,
-                    opacity: pressed ? 0.7 : 1,
-                  },
-                ]}
-                onPress={() => setIsUnsaveModalVisible(false)}
-              >
-                <Text style={[styles.modalButtonText, { color: colors.text }]}>
-                  Cancel
-                </Text>
-              </Pressable>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.modalButton,
-                  {
-                    backgroundColor: "#e74c3c",
-                    opacity: pressed ? 0.7 : 1,
-                  },
-                ]}
-                onPress={handleConfirmUnsave}
-              >
-                <Text style={[styles.modalButtonText, { color: "#ffffff" }]}>
-                  Unsave
-                </Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Cancel Application Confirmation Modal */}
-      <Modal
-        transparent={true}
+      <ConfirmationModal
         visible={isCancelModalVisible}
-        animationType="fade"
-        onRequestClose={() => setIsCancelModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View
-            style={[
-              styles.modalContent,
-              { backgroundColor: colors.card, borderColor: colors.border },
-            ]}
-          >
-            <Text style={[styles.modalTitle, { color: colors.text }]}>
-              Cancel Application
-            </Text>
-            <Text style={[styles.modalText, { color: colors.text }]}>
-              Are you sure you want to revoke your application for{" "}
-              {job.companyName}?
-            </Text>
-
-            <View style={styles.modalButtonRow}>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.modalButton,
-                  {
-                    backgroundColor: colors.background,
-                    opacity: pressed ? 0.7 : 1,
-                  },
-                ]}
-                onPress={() => setIsCancelModalVisible(false)}
-              >
-                <Text style={[styles.modalButtonText, { color: colors.text }]}>
-                  No
-                </Text>
-              </Pressable>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.modalButton,
-                  {
-                    backgroundColor: "#e74c3c",
-                    opacity: pressed ? 0.7 : 1,
-                  },
-                ]}
-                onPress={handleCancelApplicationConfirm}
-              >
-                <Text style={[styles.modalButtonText, { color: "#ffffff" }]}>
-                  Yes
-                </Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
+        onClose={() => setIsCancelModalVisible(false)}
+        onConfirm={handleCancelApplicationConfirm}
+        title="Cancel Application"
+        message={`Are you sure you want to revoke your application for ${job.companyName}?`}
+      />
     </>
   );
 };
