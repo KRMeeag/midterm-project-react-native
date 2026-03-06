@@ -8,8 +8,10 @@ interface ThemeContextType {
   colors: {
     background: string;
     text: string;
+    subtext: string;
     card: string;
     primary: string;
+    secondary: string;
     border: string;
     header: string;
     accent: string;
@@ -36,9 +38,11 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const colors = theme === 'light' 
     ? { 
         background: '#f2f2f2', 
-        text: '#264653', 
+        text: '#264653',
+        subtext: '#888',
         card: '#ffffff', 
         primary: '#2A9D8F', 
+        secondary: '#264653',
         border: '#e0e0e0',
         header: '#264653',
         accent: '#E76F51',
@@ -47,9 +51,11 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     : { 
         background: '#1a1a1a', 
         text: '#ffffff', 
+        subtext: '#d8d7d7',
         card: '#264653', 
         primary: '#2A9D8F', 
-        border: '#2A9D8F',
+        secondary: '#40768b',
+        border: '#043731',
         header: '#12232a',
         accent: '#F4A261',
         warning: '#E9C46A'
